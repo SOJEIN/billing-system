@@ -63,4 +63,14 @@ class InvoiceController extends Controller
         return response()->json($paginator);
     }
 
+    public function show($id)
+    {
+        $invoice = $this->invoiceRepository->find($id);
+        if (!$invoice) {
+            return response()->json(['message' => 'Factura no encontrada'], 404);
+        }
+
+        return response()->json(['data' => $invoice->load('invoiceDetails')]);
+    }
+
 }
