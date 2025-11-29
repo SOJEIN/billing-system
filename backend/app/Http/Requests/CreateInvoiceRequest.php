@@ -21,17 +21,20 @@ class CreateInvoiceRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'client_identification' => 'required|string|max:20',
-            'client_name'           => 'required|string|max:255',
-            'client_email'          => 'required|email|max:255',
-            'issue_date'            => 'required|date',
-            'due_date'              => 'required|date|after_or_equal:issue_date',
-            'invoice_type'          => 'required|in:cash,credit',
-            'user_id'               => 'required|integer|exists:users,id',
-            'subtotal'              => 'required|numeric|min:0',
-            'tax_total'             => 'required|numeric|min:0',
-            'total'                 => 'required|numeric|min:0',
-        ];
+       return [
+        'client_identification' => 'required|string|max:20',
+        'client_name'           => 'required|string|max:255',
+        'client_email'          => 'required|email|max:255',
+        'issue_date'            => 'required|date',
+        'credit_days'           => 'required|integer',  // para calcular due_date
+        'invoice_type'          => 'required|in:cash,credit',
+        'user_id'               => 'required|integer|exists:users,id',
+        'items'                 => 'required|array|min:1',
+        'items.*.code'          => 'required|string',
+        'items.*.name'          => 'required|string',
+        'items.*.unit_price'    => 'required|numeric|min:0',
+        'items.*.quantity'      => 'required|numeric|min:0',
+        'items.*.tax_amount'    => 'required|numeric|min:0',
+    ];
     }
 }
