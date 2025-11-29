@@ -22,8 +22,7 @@ return new class extends Migration
         $table->decimal('tax_amount', 10, 2);
         $table->decimal('subtotal', 10, 2);
         $table->decimal('total', 10, 2);
-        $table->timestamp('created_at')->useCurrent();
-
+        $table->timestamps();
         // Definimos la llave foránea
         $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
     });

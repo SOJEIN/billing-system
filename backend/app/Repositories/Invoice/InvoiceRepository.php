@@ -20,8 +20,15 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     public function create(array $data): Invoice
     {
         $invoice = Invoice::create([
-            'invoice_number' => $data['invoice_number'] ?? null,
-            'customer_id' => $data['customer_id'] ?? null,
+            'client_identification' => $data['client_identification'] ?? null,
+            'client_name' => $data['client_name'] ?? null,
+            'client_email' => $data['client_email'] ?? null,
+            'issue_date' => $data['issue_date'] ?? null,
+            'due_date' => $data['due_date'] ?? null,
+            'invoice_type' => $data['invoice_type'] ?? 'cash',
+            'user_id' => $data['user_id'] ?? null,
+            'subtotal' => $data['subtotal'] ?? 0,
+            'tax_total' => $data['tax_total'] ?? 0,
             'total' => $data['total'] ?? 0,
         ]);
 
@@ -29,13 +36,14 @@ class InvoiceRepository implements InvoiceRepositoryInterface
             foreach ($data['details'] as $item) {
                 InvoiceDetail::create([
                     'invoice_id' => $invoice->id,
-                    'code' => $item['code'],
-                    'name' => $item['name'],
-                    'unit_price' => $item['unit_price'],
-                    'quantity' => $item['quantity'],
-                    'tax_amount' => $item['tax_amount'],
-                    'subtotal' => $item['unit_price'] * $item['quantity'],
-                    'total' => ($item['unit_price'] * $item['quantity']) + $item['tax_amount'],
+                    'item_code' => $item['item_code'] ?? ($item['code'] ?? null),
+                    'item_name' => $item['item_name'] ?? ($item['name'] ?? null),
+                    'unit_price' => $item['unit_price'] ?? 0,
+                    'quantity' => $item['quantity'] ?? 0,
+                    'applies_tax' => $item['applies_tax'] ?? false,
+                    'tax_amount' => $item['tax_amount'] ?? 0,
+                    'subtotal' => $item['subtotal'] ?? (($item['unit_price'] ?? 0) * ($item['quantity'] ?? 0)),
+                    'total' => $item['total'] ?? (($item['unit_price'] ?? 0) * ($item['quantity'] ?? 0) + ($item['tax_amount'] ?? 0)),
                 ]);
             }
         }
