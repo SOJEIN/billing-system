@@ -1,0 +1,24 @@
+/backend/vendor
+/backend/node_modules
+/backend/storage/*.key
+/backend/storage/logs
+/backend/storage/framework/cache
+/backend/storage/framework/sessions
+/backend/storage/framework/views
+/backend/.env
+
+/frontend/node_modules
+/frontend/dist
+/frontend/build
+
+# Editor
+/.idea
+/.vscode
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Others
+npm-debug.log
+yarn-error.log
