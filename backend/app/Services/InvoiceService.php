@@ -30,4 +30,9 @@ class InvoiceService
     {
         return $this->invoiceRepository->find($id);
     }
+
+    public function listInvoices(array $filters = [], int $perPage = 15)
+    {
+        return $this->invoiceRepository->paginateWithFilters($filters, $perPage);
+    }
 }

@@ -4,6 +4,8 @@ namespace App\Repositories\Invoice;
 
 use App\Models\Invoice;
 use App\Models\InvoiceDetail;
+use Illuminate\Support\Facades\Schema;
+use Carbon\Carbon;
 
 class InvoiceRepository implements InvoiceRepositoryInterface
 {
@@ -54,7 +56,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     public function update(int $id, array $data): bool
     {
         $invoice = Invoice::find($id);
-        if (!$invoice) return false;
+        if (!$invoice) { return false; }
 
         return $invoice->update($data);
     }
@@ -62,8 +64,55 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     public function delete(int $id): bool
     {
         $invoice = Invoice::find($id);
-        if (!$invoice) return false;
+        if (!$invoice) { return false; }
 
         return $invoice->delete();
+    }
+
+    public function paginateWithFilters(array $filters, int $perPage = 15)
+    {
+        $query = Invoice::with('invoiceDetails');
+
+        if (!empty($filters['start_date'])) {
+            $query->whereDate('issue_date', '>=', $filters['start_date']);
+        }
+        if (!empty($filters['end_date'])) {
+            $query->whereDate('issue_date', '<=', $filters['end_date']);
+        }
+
+        if (!empty($filters['client'])) {
+            $client = $filters['client'];
+            $query->where(function ($q) use ($client) {
+                $q->where('client_identification', $client)
+                  ->orWhere('client_name', 'like', "%{$client}%");
+            });
+        }
+
+        if (!empty($filters['invoice_type'])) {
+            $query->where('invoice_type', $filters['invoice_type']);
+        }
+
+        if (!empty($filters['status'])) {
+            $status = $filters['status'];
+            if (Schema::hasColumn('invoices', 'status')) {
+                $query->where('status', $status);
+            } else {
+                $today = Carbon::today();
+                if ($status === 'overdue') {
+                    $query->whereDate('due_date', '<', $today);
+                } elseif ($status === 'open') {
+                    $query->whereDate('due_date', '>=', $today);
+                }
+            }
+        }
+
+        // Sorting
+        $allowed = ['issue_date', 'due_date', 'client_name', 'total'];
+        $sortBy = $filters['sort_by'] ?? 'issue_date';
+        $sortDir = strtolower($filters['sort_dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+        if (!in_array($sortBy, $allowed)) { $sortBy = 'issue_date'; }
+        $query->orderBy($sortBy, $sortDir);
+
+        return $query->paginate($perPage);
     }
 }

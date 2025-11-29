@@ -9,3 +9,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('/invoices', [InvoiceController::class, 'store']);
+Route::get('/invoices', [InvoiceController::class, 'index']);

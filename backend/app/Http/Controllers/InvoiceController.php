@@ -11,6 +11,7 @@ class InvoiceController extends Controller
 {
     protected $invoiceCalculationService;
     protected $invoiceRepository;
+    
 
     public function __construct(
         InvoiceCalculationService $invoiceCalculationService, InvoiceRepositoryInterface $invoiceRepository
@@ -20,7 +21,7 @@ class InvoiceController extends Controller
     }
 
     public function store(CreateInvoiceRequest $request)
-{
+    {
     $data = $request->validated();
     $items = $data['items'];
     $subtotal = $this->invoiceCalculationService->calculateSubtotal($items);
@@ -42,5 +43,24 @@ class InvoiceController extends Controller
         'data' => $invoice->load('invoiceDetails')
     ], 201);
 }
+
+
+
+
+    public function index(Request $request)
+    {
+        $filters = $request->only(['start_date', 'end_date', 'client', 'status', 'invoice_type', 'sort_by', 'sort_dir']);
+        $perPage = (int) $request->query('per_page', 15);
+
+        // sanitize sorting
+        $allowedSort = ['issue_date', 'due_date', 'client_name', 'total'];
+        $sortBy = in_array($filters['sort_by'] ?? null, $allowedSort) ? $filters['sort_by'] : 'issue_date';
+        $sortDir = strtolower($filters['sort_dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+        $filters['sort_by'] = $sortBy;
+        $filters['sort_dir'] = $sortDir;
+
+        $paginator = $this->invoiceRepository->paginateWithFilters(array_filter($filters), $perPage);
+        return response()->json($paginator);
+    }
 
 }
