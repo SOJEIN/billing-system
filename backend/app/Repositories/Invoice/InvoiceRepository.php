@@ -34,8 +34,8 @@ class InvoiceRepository implements InvoiceRepositoryInterface
             'total' => $data['total'] ?? 0,
         ]);
 
-        if (isset($data['details']) && is_array($data['details'])) {
-            foreach ($data['details'] as $item) {
+        if (isset($data['items']) && is_array($data['items'])) {
+            foreach ($data['items'] as $item) {
                 InvoiceDetail::create([
                     'invoice_id' => $invoice->id,
                     'item_code' => $item['item_code'] ?? ($item['code'] ?? null),

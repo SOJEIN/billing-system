@@ -1,22 +1,31 @@
 import React, { useState } from "react";
 import { useInvoices } from "./useInvoices";
-import { Typography, Box, Snackbar, Alert } from "@mui/material";
+import { Typography, Box, Snackbar, Alert, Button } from "@mui/material";
 
 import type { Invoice, InvoiceDetail } from "./InvoicesService";
 import InvoiceTable from "./components/InvoiceTable";
 import InvoiceDetailsDialog from "./components/InvoiceDetailsDialog";
+import CreateInvoiceDialog from "./components/CreateInvoiceDialog";
 import DeleteConfirmDialog from "./components/DeleteConfirmDialog";
 import type { Meta } from "./types";
 
 const Invoices: React.FC = () => {
-  const { invoices, loading, handleDelete, currentPage, lastPage, goToPage } =
-    useInvoices();
+  const {
+    invoices,
+    loading,
+    handleDelete,
+    currentPage,
+    lastPage,
+    goToPage,
+    refresh,
+  } = useInvoices();
 
   const [openDialogDelete, setOpenDialogDelete] = useState(false);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<number | null>(
     null
   );
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [createdSnackbarOpen, setCreatedSnackbarOpen] = useState(false);
 
   const [openDialogView, setOpenDialogView] = useState(false);
   const [selectedInvoiceDetails, setSelectedInvoiceDetails] = useState<
@@ -40,7 +49,6 @@ const Invoices: React.FC = () => {
     }
   };
 
-  // --- Funciones ver detalles ---
   const handleOpenViewDialog = (
     details: InvoiceDetail[],
     meta?: Meta | null
@@ -49,6 +57,8 @@ const Invoices: React.FC = () => {
     setSelectedInvoiceMeta(meta ?? null);
     setOpenDialogView(true);
   };
+
+  const [openCreateDialog, setOpenCreateDialog] = useState(false);
 
   if (loading)
     return (
@@ -78,7 +88,15 @@ const Invoices: React.FC = () => {
             alignItems: "center",
           }}
         >
-          {/* Table component refactored into child component */}
+          <Box width="100%" display="flex" justifyContent="flex-end" mb={2}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setOpenCreateDialog(true)}
+            >
+              Crear factura
+            </Button>
+          </Box>
           <InvoiceTable
             invoices={invoices as Invoice[]}
             onView={(details, meta) =>
@@ -89,7 +107,6 @@ const Invoices: React.FC = () => {
             lastPage={lastPage}
             goToPage={goToPage}
           />
-          {/* Pagination moved into InvoiceTable */}
         </Box>
       </Box>
       <DeleteConfirmDialog
@@ -97,6 +114,15 @@ const Invoices: React.FC = () => {
         id={selectedInvoiceId}
         onClose={() => setOpenDialogDelete(false)}
         onConfirm={handleConfirmDelete}
+      />
+      <CreateInvoiceDialog
+        open={openCreateDialog}
+        onClose={() => setOpenCreateDialog(false)}
+        onCreated={() => {
+          setOpenCreateDialog(false);
+          refresh();
+          setCreatedSnackbarOpen(true);
+        }}
       />
       <Snackbar
         open={snackbarOpen}
@@ -110,6 +136,20 @@ const Invoices: React.FC = () => {
           onClose={() => setSnackbarOpen(false)}
         >
           La factura se eliminó correctamente
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={createdSnackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setCreatedSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          severity="success"
+          variant="filled"
+          onClose={() => setCreatedSnackbarOpen(false)}
+        >
+          La factura se creó correctamente
         </Alert>
       </Snackbar>
       <InvoiceDetailsDialog

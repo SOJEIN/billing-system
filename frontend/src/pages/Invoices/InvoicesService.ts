@@ -40,3 +40,8 @@ export const getInvoices = async (page: number = 1) => {
 export const deleteInvoice = async (id: number): Promise<void> => {
   await axios.delete(`${BASE_URL}/invoices/${id}`);
 };
+
+export const createInvoice = async (payload: Record<string, unknown>) => {
+  const response = await axios.post(`${BASE_URL}/invoices`, payload);
+  return response.data;
+};

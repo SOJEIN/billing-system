@@ -41,5 +41,17 @@ export const useInvoices = () => {
     }
   };
 
-  return { invoices, loading, handleDelete, currentPage, lastPage, goToPage };
+  const refresh = () => {
+    fetchInvoices(currentPage);
+  };
+
+  return {
+    invoices,
+    loading,
+    handleDelete,
+    currentPage,
+    lastPage,
+    goToPage,
+    refresh,
+  };
 };
