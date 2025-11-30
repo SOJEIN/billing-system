@@ -6,18 +6,23 @@ use Illuminate\Http\Request;
 use App\Http\Requests\CreateInvoiceRequest;
 use App\Services\InvoiceCalculationService;
 use App\Repositories\Invoice\InvoiceRepositoryInterface;
+use App\Services\Invoice\InvoiceService as InvoiceListingService;
 
 class InvoiceController extends Controller
 {
     protected $invoiceCalculationService;
     protected $invoiceRepository;
+    protected $invoiceService;
     
 
     public function __construct(
-        InvoiceCalculationService $invoiceCalculationService, InvoiceRepositoryInterface $invoiceRepository
+        InvoiceCalculationService $invoiceCalculationService,
+        InvoiceRepositoryInterface $invoiceRepository,
+        InvoiceListingService $invoiceService
     ) {
         $this->invoiceCalculationService = $invoiceCalculationService;
         $this->invoiceRepository = $invoiceRepository;
+        $this->invoiceService = $invoiceService;
     }
 
     public function store(CreateInvoiceRequest $request)
@@ -47,6 +52,7 @@ class InvoiceController extends Controller
 
 
 
+
     public function index(Request $request)
     {
         $filters = $request->only(['start_date', 'end_date', 'client', 'status', 'invoice_type', 'sort_by', 'sort_dir']);
@@ -71,6 +77,16 @@ class InvoiceController extends Controller
         }
 
         return response()->json(['data' => $invoice->load('invoiceDetails')]);
+    }
+
+    public function destroy($id)
+    {
+        $deleted = $this->invoiceService->deleteInvoice((int) $id);
+        if (!$deleted) {
+            return response()->json(['message' => 'Factura no encontrada'], 404);
+        }
+
+        return response()->json(null, 204);
     }
 
 }
