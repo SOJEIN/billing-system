@@ -7,11 +7,14 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Button,
   Stack,
   Pagination,
   Box,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import type { Invoice } from "../InvoicesService";
 
 interface Props {
@@ -61,6 +64,9 @@ const InvoiceTable: React.FC<Props> = ({
                 Email
               </TableCell>
               <TableCell sx={{ color: "white", fontWeight: "bold", py: 1.25 }}>
+                Tipo de factura
+              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold", py: 1.25 }}>
                 Fecha emisión
               </TableCell>
               <TableCell sx={{ color: "white", fontWeight: "bold", py: 1.25 }}>
@@ -86,6 +92,7 @@ const InvoiceTable: React.FC<Props> = ({
                 <TableCell sx={{ py: 1.25 }}>{invoice.id}</TableCell>
                 <TableCell sx={{ py: 1.25 }}>{invoice.client_name}</TableCell>
                 <TableCell>{invoice.client_email}</TableCell>
+                <TableCell>{invoice.invoice_type}</TableCell>
                 <TableCell sx={{ py: 1.25 }}>{invoice.issue_date}</TableCell>
                 <TableCell sx={{ py: 1.25 }}>{invoice.due_date}</TableCell>
                 <TableCell
@@ -94,29 +101,32 @@ const InvoiceTable: React.FC<Props> = ({
                   {invoice.total}
                 </TableCell>
                 <TableCell>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    size="small"
-                    onClick={() => onDelete(invoice.id)}
-                    sx={{ mr: 1 }}
-                  >
-                    Eliminar
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="small"
-                    onClick={() =>
-                      onView(invoice.invoice_details, {
-                        id: invoice.id,
-                        client_name: invoice.client_name,
-                        client_email: invoice.client_email,
-                      })
-                    }
-                  >
-                    Ver
-                  </Button>
+                  <Stack direction="row" spacing={1}>
+                    <Tooltip title="Eliminar">
+                      <IconButton
+                        color="error"
+                        size="small"
+                        onClick={() => onDelete(invoice.id)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Ver">
+                      <IconButton
+                        color="primary"
+                        size="small"
+                        onClick={() =>
+                          onView(invoice.invoice_details, {
+                            id: invoice.id,
+                            client_name: invoice.client_name,
+                            client_email: invoice.client_email,
+                          })
+                        }
+                      >
+                        <VisibilityIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
                 </TableCell>
               </TableRow>
             ))}

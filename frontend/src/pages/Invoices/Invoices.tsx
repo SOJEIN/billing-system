@@ -67,6 +67,16 @@ const Invoices: React.FC = () => {
       </Box>
     );
 
+  const handleAddDetail = (detail?: InvoiceDetail) => {
+    if (!detail) {
+      alert(
+        "Agregar nuevo detalle (implementa aquí el formulario o lógica deseada)"
+      );
+      return;
+    }
+    setSelectedInvoiceDetails((prev) => [...prev, detail]);
+  };
+
   return (
     <>
       <Box
@@ -157,6 +167,7 @@ const Invoices: React.FC = () => {
         onClose={() => setOpenDialogView(false)}
         details={selectedInvoiceDetails}
         meta={selectedInvoiceMeta}
+        onAddDetail={handleAddDetail}
       />
     </>
   );

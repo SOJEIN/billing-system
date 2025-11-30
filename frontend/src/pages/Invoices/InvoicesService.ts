@@ -1,3 +1,8 @@
+// Crear un nuevo detalle de factura
+export const createInvoiceDetail = async (payload: Record<string, unknown>) => {
+  const response = await axios.post(`${BASE_URL}/invoice-details`, payload);
+  return response.data;
+};
 import axios from "axios";
 
 export interface InvoiceDetail {

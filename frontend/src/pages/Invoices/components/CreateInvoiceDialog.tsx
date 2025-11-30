@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -25,24 +25,20 @@ import {
   Alert,
 } from "@mui/material";
 import { createInvoice } from "../InvoicesService";
-import type { InvoiceDetail } from "../InvoicesService";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onCreated: () => void; // callback to let parent refresh
+  onCreated: () => void;
 }
 
 const CreateInvoiceDialog: React.FC<Props> = ({ open, onClose, onCreated }) => {
-  // Invoice basic fields
   const [clientIdentification, setClientIdentification] = useState("");
   const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [issueDate, setIssueDate] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [invoiceType, setInvoiceType] = useState("cash");
-
-  // Single item detail for simplicity
   const [itemCode, setItemCode] = useState("");
   const [itemName, setItemName] = useState("");
   const [unitPrice, setUnitPrice] = useState<number | "">("");
@@ -108,7 +104,15 @@ const CreateInvoiceDialog: React.FC<Props> = ({ open, onClose, onCreated }) => {
     return errors;
   };
 
-  const taxRate = 0.1; // 10% default
+  useEffect(() => {
+    if (invoiceType === "credit") {
+      setCreditDays(30);
+    } else {
+      setCreditDays(0);
+    }
+  }, [invoiceType]);
+
+  const taxRate = 0.19;
 
   const computeSubtotal = () => Number(unitPrice || 0) * Number(quantity || 0);
   const computeTax = () => (appliesTax ? computeSubtotal() * taxRate : 0);
@@ -146,7 +150,6 @@ const CreateInvoiceDialog: React.FC<Props> = ({ open, onClose, onCreated }) => {
     if (!canSubmit()) return;
     setSubmitting(true);
     try {
-      // Map to backend expected keys: items[*].code, items[*].name, unit_price, quantity, tax_amount, tax_rate, description, total
       const items = [
         {
           code: itemCode,
@@ -293,6 +296,7 @@ const CreateInvoiceDialog: React.FC<Props> = ({ open, onClose, onCreated }) => {
                 helperText={
                   apiErrors.credit_days ? apiErrors.credit_days.join(" ") : ""
                 }
+                disabled={invoiceType === "cash"}
               />
             </Grid>
             <Grid item xs={12} sm={3}>
@@ -313,7 +317,7 @@ const CreateInvoiceDialog: React.FC<Props> = ({ open, onClose, onCreated }) => {
             </Grid>
             <Grid item xs={12}>
               <Typography variant="subtitle1" sx={{ mt: 2 }}>
-                Detalles
+                Detalles de la factura
               </Typography>
             </Grid>
             <Grid item xs={12} sm={4}>
@@ -452,7 +456,7 @@ const CreateInvoiceDialog: React.FC<Props> = ({ open, onClose, onCreated }) => {
                     onChange={(e) => setAppliesTax(e.target.checked)}
                   />
                 }
-                label="Aplicar IVA (10%)"
+                label="Aplicar IVA (19%)"
               />
             </Grid>
             <Grid item xs={12} sm={4}>

@@ -8,7 +8,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+
+use App\Http\Controllers\InvoiceDetailController;
+
 Route::post('/invoices', [InvoiceController::class, 'store']);
 Route::get('/invoices', [InvoiceController::class, 'index']);
 Route::get('/invoices/{id}', [InvoiceController::class, 'show']);
 Route::delete('/invoices/{id}', [InvoiceController::class, 'destroy']);
+
+Route::post('/invoice-details', [InvoiceDetailController::class, 'store']);
